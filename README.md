@@ -51,12 +51,18 @@ mvn test
 src/
 ├── main/
 │   ├── java/com/digitalwallet/api/
-│   │   └── DigitalWalletApplication.java
+│   │   ├── DigitalWalletApplication.java
+│   │   └── entity/
+│   │       ├── Customer.java
+│   │       ├── Wallet.java
+│   │       └── Transaction.java
 │   └── resources/
 │       └── application.properties
 └── test/
     ├── java/com/digitalwallet/api/
-    │   └── DigitalWalletApplicationTests.java
+    │   ├── DigitalWalletApplicationTests.java
+    │   └── entity/
+    │       └── EntityTest.java
     └── resources/
         └── application-test.properties
 ```
