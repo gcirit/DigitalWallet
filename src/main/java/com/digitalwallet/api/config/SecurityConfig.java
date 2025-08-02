@@ -16,12 +16,14 @@ public class SecurityConfig {
             .authorizeHttpRequests(authz -> authz
                 // Allow H2 console
                 .requestMatchers("/h2-console/**").permitAll()
-                // Allow all requests for now (we'll secure this later)
+                // Allow all API requests for now (we'll secure this later)
+                .requestMatchers("/api/**").permitAll()
+                // Allow all other requests for now
                 .anyRequest().permitAll()
             )
             .csrf(csrf -> csrf
-                // Disable CSRF for H2 console
-                .ignoringRequestMatchers("/h2-console/**")
+                // Disable CSRF for REST API endpoints and H2 console
+                .ignoringRequestMatchers("/api/**", "/h2-console/**")
             )
             .headers(headers -> headers
                 // Disable frame options for H2 console (new syntax for Spring Security 6.1+)

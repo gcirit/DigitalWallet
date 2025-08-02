@@ -1,0 +1,791 @@
+{
+	"info": {
+		"_postman_id": "digital-wallet-api",
+		"name": "Digital Wallet API",
+		"description": "Complete REST API collection for Digital Wallet operations including Customer, Wallet, and Transaction management.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Customer Management",
+			"item": [
+				{
+					"name": "Create Customer",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"John\",\n  \"surname\": \"Doe\",\n  \"tckn\": \"12345678901\",\n  \"role\": \"CUSTOMER\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/customers",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"customers"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Customer by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/customers/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"customers",
+								"1"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Customer by TCKN",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/customers/tckn/12345678901",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"customers",
+								"tckn",
+								"12345678901"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get All Customers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/customers",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"customers"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Customers by Role",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/customers/role/CUSTOMER",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"customers",
+								"role",
+								"CUSTOMER"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Customer",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"John Updated\",\n  \"surname\": \"Doe Updated\",\n  \"role\": \"CUSTOMER\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/customers/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"customers",
+								"1"
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Customer",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/customers/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"customers",
+								"1"
+							]
+						}
+					}
+				},
+				{
+					"name": "Check Customer Exists by TCKN",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/customers/exists/tckn/12345678901",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"customers",
+								"exists",
+								"tckn",
+								"12345678901"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Wallet Management",
+			"item": [
+				{
+					"name": "Create Wallet",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"walletName\": \"My Wallet\",\n  \"currency\": \"TRY\",\n  \"activeForShopping\": true,\n  \"activeForWithdraw\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/wallets/customer/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"wallets",
+								"customer",
+								"1"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Wallet by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/wallets/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"wallets",
+								"1"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Wallets by Customer ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/wallets/customer/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"wallets",
+								"customer",
+								"1"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Wallets by Customer and Currency",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/wallets/customer/1/currency/TRY",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"wallets",
+								"customer",
+								"1",
+								"currency",
+								"TRY"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get All Wallets",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/wallets",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"wallets"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Wallet Balance",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "1000.00"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/wallets/1/balance",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"wallets",
+								"1",
+								"balance"
+							]
+						}
+					}
+				},
+				{
+					"name": "Add to Wallet Balance",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "500.00"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/wallets/1/balance/add",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"wallets",
+								"1",
+								"balance",
+								"add"
+							]
+						}
+					}
+				},
+				{
+					"name": "Deduct from Wallet Balance",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "200.00"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/wallets/1/balance/deduct",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"wallets",
+								"1",
+								"balance",
+								"deduct"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Wallet Status",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/wallets/1/status?activeForShopping=true&activeForWithdraw=true",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"wallets",
+								"1",
+								"status"
+							],
+							"query": [
+								{
+									"key": "activeForShopping",
+									"value": "true"
+								},
+								{
+									"key": "activeForWithdraw",
+									"value": "true"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Wallet",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/wallets/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"wallets",
+								"1"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Wallets by Currency",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/wallets/currency/TRY",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"wallets",
+								"currency",
+								"TRY"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Active Wallets for Shopping",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/wallets/active/shopping",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"wallets",
+								"active",
+								"shopping"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Active Wallets for Withdraw",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/wallets/active/withdraw",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"wallets",
+								"active",
+								"withdraw"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Transaction Management",
+			"item": [
+				{
+					"name": "Create Deposit Transaction",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/transactions/deposit?walletId=1&amount=100.00&oppositePartyType=IBAN&oppositeParty=TR123456789",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"transactions",
+								"deposit"
+							],
+							"query": [
+								{
+									"key": "walletId",
+									"value": "1"
+								},
+								{
+									"key": "amount",
+									"value": "100.00"
+								},
+								{
+									"key": "oppositePartyType",
+									"value": "IBAN"
+								},
+								{
+									"key": "oppositeParty",
+									"value": "TR123456789"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Withdrawal Transaction",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/transactions/withdraw?walletId=1&amount=50.00&oppositePartyType=IBAN&oppositeParty=TR987654321",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"transactions",
+								"withdraw"
+							],
+							"query": [
+								{
+									"key": "walletId",
+									"value": "1"
+								},
+								{
+									"key": "amount",
+									"value": "50.00"
+								},
+								{
+									"key": "oppositePartyType",
+									"value": "IBAN"
+								},
+								{
+									"key": "oppositeParty",
+									"value": "TR987654321"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Approve Transaction",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/transactions/1/approve",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"transactions",
+								"1",
+								"approve"
+							]
+						}
+					}
+				},
+				{
+					"name": "Deny Transaction",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/transactions/1/deny",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"transactions",
+								"1",
+								"deny"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Transaction by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/transactions/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"transactions",
+								"1"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Transactions by Wallet ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/transactions/wallet/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"transactions",
+								"wallet",
+								"1"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Transactions by Wallet and Status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/transactions/wallet/1/status/PENDING",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"transactions",
+								"wallet",
+								"1",
+								"status",
+								"PENDING"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get All Transactions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/transactions",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"transactions"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Transactions by Status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/transactions/status/PENDING",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"transactions",
+								"status",
+								"PENDING"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Pending Transactions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/transactions/pending",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"transactions",
+								"pending"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Transactions by Type",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/transactions/type/DEPOSIT",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"transactions",
+								"type",
+								"DEPOSIT"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Transactions by Wallet and Type",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/transactions/wallet/1/type/DEPOSIT",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"transactions",
+								"wallet",
+								"1",
+								"type",
+								"DEPOSIT"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Deposit Transactions by Wallet",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/transactions/wallet/1/deposits",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"transactions",
+								"wallet",
+								"1",
+								"deposits"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Withdrawal Transactions by Wallet",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/transactions/wallet/1/withdrawals",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"transactions",
+								"wallet",
+								"1",
+								"withdrawals"
+							]
+						}
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		}
+	]
+} 
