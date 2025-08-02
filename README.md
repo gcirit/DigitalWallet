@@ -52,17 +52,25 @@ src/
 ├── main/
 │   ├── java/com/digitalwallet/api/
 │   │   ├── DigitalWalletApplication.java
-│   │   └── entity/
-│   │       ├── Customer.java
-│   │       ├── Wallet.java
-│   │       └── Transaction.java
+│   │   ├── config/
+│   │   │   └── SecurityConfig.java
+│   │   ├── entity/
+│   │   │   ├── Customer.java
+│   │   │   ├── Wallet.java
+│   │   │   └── Transaction.java
+│   │   └── repository/
+│   │       ├── CustomerRepository.java
+│   │       ├── WalletRepository.java
+│   │       └── TransactionRepository.java
 │   └── resources/
 │       └── application.properties
 └── test/
     ├── java/com/digitalwallet/api/
     │   ├── DigitalWalletApplicationTests.java
-    │   └── entity/
-    │       └── EntityTest.java
+    │   ├── entity/
+    │   │   └── EntityTest.java
+    │   └── repository/
+    │       └── RepositoryTest.java
     └── resources/
         └── application-test.properties
 ```
