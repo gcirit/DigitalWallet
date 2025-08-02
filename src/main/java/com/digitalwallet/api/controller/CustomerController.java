@@ -1,5 +1,7 @@
 package com.digitalwallet.api.controller;
 
+import com.digitalwallet.api.dto.CustomerDto;
+import com.digitalwallet.api.dto.CreateCustomerRequest;
 import com.digitalwallet.api.entity.Customer;
 import com.digitalwallet.api.service.CustomerService;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/customers")
@@ -22,11 +25,12 @@ public class CustomerController {
      * Create a new customer
      */
     @PostMapping
-    public ResponseEntity<Customer> createCustomer(@RequestBody Customer customer) {
-        log.info("Creating customer: {}", customer.getTckn());
+    public ResponseEntity<CustomerDto> createCustomer(@RequestBody CreateCustomerRequest request) {
+        log.info("Creating customer: {}", request.getTckn());
         try {
+            Customer customer = request.toEntity();
             Customer createdCustomer = customerService.createCustomer(customer);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdCustomer);
+            return ResponseEntity.status(HttpStatus.CREATED).body(CustomerDto.fromEntity(createdCustomer));
         } catch (IllegalArgumentException e) {
             log.error("Error creating customer: {}", e.getMessage());
             return ResponseEntity.badRequest().build();
@@ -37,9 +41,10 @@ public class CustomerController {
      * Get customer by ID
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Customer> getCustomerById(@PathVariable Long id) {
+    public ResponseEntity<CustomerDto> getCustomerById(@PathVariable Long id) {
         log.info("Getting customer by ID: {}", id);
         return customerService.findCustomerById(id)
+                .map(CustomerDto::fromEntity)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -48,9 +53,10 @@ public class CustomerController {
      * Get customer by TCKN
      */
     @GetMapping("/tckn/{tckn}")
-    public ResponseEntity<Customer> getCustomerByTckn(@PathVariable String tckn) {
+    public ResponseEntity<CustomerDto> getCustomerByTckn(@PathVariable String tckn) {
         log.info("Getting customer by TCKN: {}", tckn);
         return customerService.findCustomerByTckn(tckn)
+                .map(CustomerDto::fromEntity)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -59,31 +65,38 @@ public class CustomerController {
      * Get all customers
      */
     @GetMapping
-    public ResponseEntity<List<Customer>> getAllCustomers() {
+    public ResponseEntity<List<CustomerDto>> getAllCustomers() {
         log.info("Getting all customers");
         List<Customer> customers = customerService.getAllCustomers();
-        return ResponseEntity.ok(customers);
+        List<CustomerDto> customerDtos = customers.stream()
+                .map(CustomerDto::fromEntity)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(customerDtos);
     }
 
     /**
      * Get customers by role
      */
     @GetMapping("/role/{role}")
-    public ResponseEntity<List<Customer>> getCustomersByRole(@PathVariable Customer.UserRole role) {
+    public ResponseEntity<List<CustomerDto>> getCustomersByRole(@PathVariable Customer.UserRole role) {
         log.info("Getting customers by role: {}", role);
         List<Customer> customers = customerService.getCustomersByRole(role);
-        return ResponseEntity.ok(customers);
+        List<CustomerDto> customerDtos = customers.stream()
+                .map(CustomerDto::fromEntity)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(customerDtos);
     }
 
     /**
      * Update customer
      */
     @PutMapping("/{id}")
-    public ResponseEntity<Customer> updateCustomer(@PathVariable Long id, @RequestBody Customer customerDetails) {
+    public ResponseEntity<CustomerDto> updateCustomer(@PathVariable Long id, @RequestBody CreateCustomerRequest request) {
         log.info("Updating customer with ID: {}", id);
         try {
+            Customer customerDetails = request.toEntity();
             Customer updatedCustomer = customerService.updateCustomer(id, customerDetails);
-            return ResponseEntity.ok(updatedCustomer);
+            return ResponseEntity.ok(CustomerDto.fromEntity(updatedCustomer));
         } catch (IllegalArgumentException e) {
             log.error("Error updating customer: {}", e.getMessage());
             return ResponseEntity.notFound().build();

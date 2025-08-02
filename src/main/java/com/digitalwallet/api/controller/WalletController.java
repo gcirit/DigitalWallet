@@ -1,5 +1,7 @@
 package com.digitalwallet.api.controller;
 
+import com.digitalwallet.api.dto.WalletDto;
+import com.digitalwallet.api.dto.CreateWalletRequest;
 import com.digitalwallet.api.entity.Wallet;
 import com.digitalwallet.api.service.WalletService;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/wallets")
@@ -23,11 +26,12 @@ public class WalletController {
      * Create a new wallet for a customer
      */
     @PostMapping("/customer/{customerId}")
-    public ResponseEntity<Wallet> createWallet(@PathVariable Long customerId, @RequestBody Wallet wallet) {
+    public ResponseEntity<WalletDto> createWallet(@PathVariable Long customerId, @RequestBody CreateWalletRequest request) {
         log.info("Creating wallet for customer ID: {}", customerId);
         try {
+            Wallet wallet = request.toEntity();
             Wallet createdWallet = walletService.createWallet(customerId, wallet);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdWallet);
+            return ResponseEntity.status(HttpStatus.CREATED).body(WalletDto.fromEntity(createdWallet));
         } catch (IllegalArgumentException e) {
             log.error("Error creating wallet: {}", e.getMessage());
             return ResponseEntity.badRequest().build();
@@ -38,9 +42,10 @@ public class WalletController {
      * Get wallet by ID
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Wallet> getWalletById(@PathVariable Long id) {
+    public ResponseEntity<WalletDto> getWalletById(@PathVariable Long id) {
         log.info("Getting wallet by ID: {}", id);
         return walletService.getWalletById(id)
+                .map(WalletDto::fromEntity)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -49,45 +54,54 @@ public class WalletController {
      * Get all wallets for a customer
      */
     @GetMapping("/customer/{customerId}")
-    public ResponseEntity<List<Wallet>> getWalletsByCustomerId(@PathVariable Long customerId) {
+    public ResponseEntity<List<WalletDto>> getWalletsByCustomerId(@PathVariable Long customerId) {
         log.info("Getting wallets for customer ID: {}", customerId);
         List<Wallet> wallets = walletService.getWalletsByCustomerId(customerId);
-        return ResponseEntity.ok(wallets);
+        List<WalletDto> walletDtos = wallets.stream()
+                .map(WalletDto::fromEntity)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(walletDtos);
     }
 
     /**
      * Get wallets by customer ID and currency
      */
     @GetMapping("/customer/{customerId}/currency/{currency}")
-    public ResponseEntity<List<Wallet>> getWalletsByCustomerIdAndCurrency(
+    public ResponseEntity<List<WalletDto>> getWalletsByCustomerIdAndCurrency(
             @PathVariable Long customerId, 
             @PathVariable Wallet.Currency currency) {
         log.info("Getting wallets for customer ID: {} and currency: {}", customerId, currency);
         List<Wallet> wallets = walletService.getWalletsByCustomerIdAndCurrency(customerId, currency);
-        return ResponseEntity.ok(wallets);
+        List<WalletDto> walletDtos = wallets.stream()
+                .map(WalletDto::fromEntity)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(walletDtos);
     }
 
     /**
      * Get all wallets
      */
     @GetMapping
-    public ResponseEntity<List<Wallet>> getAllWallets() {
+    public ResponseEntity<List<WalletDto>> getAllWallets() {
         log.info("Getting all wallets");
         List<Wallet> wallets = walletService.getAllWallets();
-        return ResponseEntity.ok(wallets);
+        List<WalletDto> walletDtos = wallets.stream()
+                .map(WalletDto::fromEntity)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(walletDtos);
     }
 
     /**
      * Update wallet balance
      */
     @PutMapping("/{id}/balance")
-    public ResponseEntity<Wallet> updateWalletBalance(
+    public ResponseEntity<WalletDto> updateWalletBalance(
             @PathVariable Long id, 
             @RequestBody BigDecimal newBalance) {
         log.info("Updating wallet balance for wallet ID: {}", id);
         try {
             Wallet updatedWallet = walletService.updateWalletBalance(id, newBalance);
-            return ResponseEntity.ok(updatedWallet);
+            return ResponseEntity.ok(WalletDto.fromEntity(updatedWallet));
         } catch (IllegalArgumentException e) {
             log.error("Error updating wallet balance: {}", e.getMessage());
             return ResponseEntity.notFound().build();
@@ -98,13 +112,13 @@ public class WalletController {
      * Add amount to wallet balance
      */
     @PostMapping("/{id}/balance/add")
-    public ResponseEntity<Wallet> addToWalletBalance(
+    public ResponseEntity<WalletDto> addToWalletBalance(
             @PathVariable Long id, 
             @RequestBody BigDecimal amount) {
         log.info("Adding {} to wallet balance for wallet ID: {}", amount, id);
         try {
             Wallet updatedWallet = walletService.addToWalletBalance(id, amount);
-            return ResponseEntity.ok(updatedWallet);
+            return ResponseEntity.ok(WalletDto.fromEntity(updatedWallet));
         } catch (IllegalArgumentException e) {
             log.error("Error adding to wallet balance: {}", e.getMessage());
             return ResponseEntity.notFound().build();
@@ -115,13 +129,13 @@ public class WalletController {
      * Deduct amount from wallet balance
      */
     @PostMapping("/{id}/balance/deduct")
-    public ResponseEntity<Wallet> deductFromWalletBalance(
+    public ResponseEntity<WalletDto> deductFromWalletBalance(
             @PathVariable Long id, 
             @RequestBody BigDecimal amount) {
         log.info("Deducting {} from wallet balance for wallet ID: {}", amount, id);
         try {
             Wallet updatedWallet = walletService.deductFromWalletBalance(id, amount);
-            return ResponseEntity.ok(updatedWallet);
+            return ResponseEntity.ok(WalletDto.fromEntity(updatedWallet));
         } catch (IllegalArgumentException e) {
             log.error("Error deducting from wallet balance: {}", e.getMessage());
             return ResponseEntity.badRequest().build();
@@ -132,14 +146,14 @@ public class WalletController {
      * Update wallet status
      */
     @PutMapping("/{id}/status")
-    public ResponseEntity<Wallet> updateWalletStatus(
+    public ResponseEntity<WalletDto> updateWalletStatus(
             @PathVariable Long id,
             @RequestParam boolean activeForShopping,
             @RequestParam boolean activeForWithdraw) {
         log.info("Updating wallet status for wallet ID: {}", id);
         try {
             Wallet updatedWallet = walletService.updateWalletStatus(id, activeForShopping, activeForWithdraw);
-            return ResponseEntity.ok(updatedWallet);
+            return ResponseEntity.ok(WalletDto.fromEntity(updatedWallet));
         } catch (IllegalArgumentException e) {
             log.error("Error updating wallet status: {}", e.getMessage());
             return ResponseEntity.notFound().build();
@@ -165,29 +179,38 @@ public class WalletController {
      * Get wallets by currency
      */
     @GetMapping("/currency/{currency}")
-    public ResponseEntity<List<Wallet>> getWalletsByCurrency(@PathVariable Wallet.Currency currency) {
+    public ResponseEntity<List<WalletDto>> getWalletsByCurrency(@PathVariable Wallet.Currency currency) {
         log.info("Getting wallets by currency: {}", currency);
         List<Wallet> wallets = walletService.getWalletsByCurrency(currency);
-        return ResponseEntity.ok(wallets);
+        List<WalletDto> walletDtos = wallets.stream()
+                .map(WalletDto::fromEntity)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(walletDtos);
     }
 
     /**
      * Get active wallets for shopping
      */
     @GetMapping("/active/shopping")
-    public ResponseEntity<List<Wallet>> getActiveWalletsForShopping() {
+    public ResponseEntity<List<WalletDto>> getActiveWalletsForShopping() {
         log.info("Getting active wallets for shopping");
         List<Wallet> wallets = walletService.getActiveWalletsForShopping();
-        return ResponseEntity.ok(wallets);
+        List<WalletDto> walletDtos = wallets.stream()
+                .map(WalletDto::fromEntity)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(walletDtos);
     }
 
     /**
      * Get active wallets for withdrawal
      */
     @GetMapping("/active/withdraw")
-    public ResponseEntity<List<Wallet>> getActiveWalletsForWithdraw() {
+    public ResponseEntity<List<WalletDto>> getActiveWalletsForWithdraw() {
         log.info("Getting active wallets for withdrawal");
         List<Wallet> wallets = walletService.getActiveWalletsForWithdraw();
-        return ResponseEntity.ok(wallets);
+        List<WalletDto> walletDtos = wallets.stream()
+                .map(WalletDto::fromEntity)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(walletDtos);
     }
 } 
