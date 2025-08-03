@@ -2,12 +2,127 @@
 	"info": {
 		"_postman_id": "digital-wallet-api",
 		"name": "Digital Wallet API",
-		"description": "Complete REST API collection for Digital Wallet operations including Customer, Wallet, and Transaction management.",
+		"description": "Complete REST API collection for Digital Wallet operations including Authentication, Customer, Wallet, and Transaction management.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
-			"name": "Customer Management",
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Login as Customer",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "12345678901",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "password",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					}
+				},
+				{
+					"name": "Login as Employee (ADMIN)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "EMP001",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "password",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Current User Info",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/me",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"me"
+							]
+						}
+					}
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"logout"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Customer Management (Employee Only)",
 			"item": [
 				{
 					"name": "Create Customer",
@@ -17,11 +132,15 @@
 							{
 								"key": "Content-Type",
 								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"name\": \"John\",\n  \"surname\": \"Doe\",\n  \"tckn\": \"12345678901\",\n  \"role\": \"CUSTOMER\"\n}"
+							"raw": "{\n  \"name\": \"John\",\n  \"surname\": \"Doe\",\n  \"tckn\": \"12345678901\",\n  \"password\": \"password\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/api/customers",
@@ -39,7 +158,12 @@
 					"name": "Get Customer by ID",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
+							}
+						],
 						"url": {
 							"raw": "{{baseUrl}}/api/customers/1",
 							"host": [
@@ -57,7 +181,12 @@
 					"name": "Get Customer by TCKN",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
+							}
+						],
 						"url": {
 							"raw": "{{baseUrl}}/api/customers/tckn/12345678901",
 							"host": [
@@ -76,7 +205,12 @@
 					"name": "Get All Customers",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
+							}
+						],
 						"url": {
 							"raw": "{{baseUrl}}/api/customers",
 							"host": [
@@ -89,25 +223,7 @@
 						}
 					}
 				},
-				{
-					"name": "Get Customers by Role",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/api/customers/role/CUSTOMER",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"customers",
-								"role",
-								"CUSTOMER"
-							]
-						}
-					}
-				},
+
 				{
 					"name": "Update Customer",
 					"request": {
@@ -116,11 +232,15 @@
 							{
 								"key": "Content-Type",
 								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"name\": \"John Updated\",\n  \"surname\": \"Doe Updated\",\n  \"role\": \"CUSTOMER\"\n}"
+							"raw": "{\n  \"name\": \"John Updated\",\n  \"surname\": \"Doe Updated\",\n  \"password\": \"newpassword\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/api/customers/1",
@@ -139,7 +259,12 @@
 					"name": "Delete Customer",
 					"request": {
 						"method": "DELETE",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
+							}
+						],
 						"url": {
 							"raw": "{{baseUrl}}/api/customers/1",
 							"host": [
@@ -157,7 +282,12 @@
 					"name": "Check Customer Exists by TCKN",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
+							}
+						],
 						"url": {
 							"raw": "{{baseUrl}}/api/customers/exists/tckn/12345678901",
 							"host": [
@@ -176,7 +306,176 @@
 			]
 		},
 		{
-			"name": "Wallet Management",
+			"name": "Employee Management (ADMIN Only)",
+			"item": [
+				{
+					"name": "Create Employee",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"New Employee\",\n  \"surname\": \"Smith\",\n  \"employeeId\": \"EMP002\",\n  \"password\": \"password\",\n  \"role\": \"EMPLOYEE\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/employees",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"employees"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get All Employees",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/employees",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"employees"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Employee by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/employees/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"employees",
+								"1"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Employee by Employee ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/employees/employee-id/EMP001",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"employees",
+								"employee-id",
+								"EMP001"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Employees by Role",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/employees/role/EMPLOYEE",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"employees",
+								"role",
+								"EMPLOYEE"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Employee",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Updated Employee\",\n  \"surname\": \"Johnson\",\n  \"password\": \"newpassword\",\n  \"role\": \"MANAGER\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/employees/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"employees",
+								"1"
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Employee",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/employees/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"employees",
+								"1"
+							]
+						}
+					}
+				},
+				{
+					"name": "Check Employee Exists by Employee ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/employees/exists/employee-id/EMP001",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"employees",
+								"exists",
+								"employee-id",
+								"EMP001"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Wallet Management (Employee Only)",
 			"item": [
 				{
 					"name": "Create Wallet",
@@ -186,6 +485,10 @@
 							{
 								"key": "Content-Type",
 								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
 							}
 						],
 						"body": {
@@ -210,7 +513,12 @@
 					"name": "Get Wallet by ID",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
+							}
+						],
 						"url": {
 							"raw": "{{baseUrl}}/api/wallets/1",
 							"host": [
@@ -228,7 +536,12 @@
 					"name": "Get Wallets by Customer ID",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
+							}
+						],
 						"url": {
 							"raw": "{{baseUrl}}/api/wallets/customer/1",
 							"host": [
@@ -247,7 +560,12 @@
 					"name": "Get Wallets by Customer and Currency",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
+							}
+						],
 						"url": {
 							"raw": "{{baseUrl}}/api/wallets/customer/1/currency/TRY",
 							"host": [
@@ -268,7 +586,12 @@
 					"name": "Get All Wallets",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
+							}
+						],
 						"url": {
 							"raw": "{{baseUrl}}/api/wallets",
 							"host": [
@@ -289,6 +612,10 @@
 							{
 								"key": "Content-Type",
 								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
 							}
 						],
 						"body": {
@@ -317,6 +644,10 @@
 							{
 								"key": "Content-Type",
 								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
 							}
 						],
 						"body": {
@@ -346,6 +677,10 @@
 							{
 								"key": "Content-Type",
 								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
 							}
 						],
 						"body": {
@@ -371,7 +706,12 @@
 					"name": "Update Wallet Status",
 					"request": {
 						"method": "PUT",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
+							}
+						],
 						"url": {
 							"raw": "{{baseUrl}}/api/wallets/1/status?activeForShopping=true&activeForWithdraw=true",
 							"host": [
@@ -400,7 +740,12 @@
 					"name": "Delete Wallet",
 					"request": {
 						"method": "DELETE",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
+							}
+						],
 						"url": {
 							"raw": "{{baseUrl}}/api/wallets/1",
 							"host": [
@@ -418,7 +763,12 @@
 					"name": "Get Wallets by Currency",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
+							}
+						],
 						"url": {
 							"raw": "{{baseUrl}}/api/wallets/currency/TRY",
 							"host": [
@@ -437,7 +787,12 @@
 					"name": "Get Active Wallets for Shopping",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
+							}
+						],
 						"url": {
 							"raw": "{{baseUrl}}/api/wallets/active/shopping",
 							"host": [
@@ -456,7 +811,12 @@
 					"name": "Get Active Wallets for Withdraw",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
+							}
+						],
 						"url": {
 							"raw": "{{baseUrl}}/api/wallets/active/withdraw",
 							"host": [
@@ -474,13 +834,18 @@
 			]
 		},
 		{
-			"name": "Transaction Management",
+			"name": "Transaction Management (Employee Only)",
 			"item": [
 				{
 					"name": "Create Deposit Transaction",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
+							}
+						],
 						"url": {
 							"raw": "{{baseUrl}}/api/transactions/deposit?walletId=1&amount=100.00&oppositePartyType=IBAN&oppositeParty=TR123456789",
 							"host": [
@@ -516,7 +881,12 @@
 					"name": "Create Withdrawal Transaction",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
+							}
+						],
 						"url": {
 							"raw": "{{baseUrl}}/api/transactions/withdraw?walletId=1&amount=50.00&oppositePartyType=IBAN&oppositeParty=TR987654321",
 							"host": [
@@ -552,7 +922,12 @@
 					"name": "Approve Transaction",
 					"request": {
 						"method": "PUT",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
+							}
+						],
 						"url": {
 							"raw": "{{baseUrl}}/api/transactions/1/approve",
 							"host": [
@@ -571,7 +946,12 @@
 					"name": "Deny Transaction",
 					"request": {
 						"method": "PUT",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
+							}
+						],
 						"url": {
 							"raw": "{{baseUrl}}/api/transactions/1/deny",
 							"host": [
@@ -590,7 +970,12 @@
 					"name": "Get Transaction by ID",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
+							}
+						],
 						"url": {
 							"raw": "{{baseUrl}}/api/transactions/1",
 							"host": [
@@ -608,7 +993,12 @@
 					"name": "Get Transactions by Wallet ID",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
+							}
+						],
 						"url": {
 							"raw": "{{baseUrl}}/api/transactions/wallet/1",
 							"host": [
@@ -627,7 +1017,12 @@
 					"name": "Get Transactions by Wallet and Status",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
+							}
+						],
 						"url": {
 							"raw": "{{baseUrl}}/api/transactions/wallet/1/status/PENDING",
 							"host": [
@@ -648,7 +1043,12 @@
 					"name": "Get All Transactions",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
+							}
+						],
 						"url": {
 							"raw": "{{baseUrl}}/api/transactions",
 							"host": [
@@ -665,7 +1065,12 @@
 					"name": "Get Transactions by Status",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
+							}
+						],
 						"url": {
 							"raw": "{{baseUrl}}/api/transactions/status/PENDING",
 							"host": [
@@ -684,7 +1089,12 @@
 					"name": "Get Pending Transactions",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
+							}
+						],
 						"url": {
 							"raw": "{{baseUrl}}/api/transactions/pending",
 							"host": [
@@ -702,7 +1112,12 @@
 					"name": "Get Transactions by Type",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
+							}
+						],
 						"url": {
 							"raw": "{{baseUrl}}/api/transactions/type/DEPOSIT",
 							"host": [
@@ -721,7 +1136,12 @@
 					"name": "Get Transactions by Wallet and Type",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
+							}
+						],
 						"url": {
 							"raw": "{{baseUrl}}/api/transactions/wallet/1/type/DEPOSIT",
 							"host": [
@@ -742,7 +1162,12 @@
 					"name": "Get Deposit Transactions by Wallet",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
+							}
+						],
 						"url": {
 							"raw": "{{baseUrl}}/api/transactions/wallet/1/deposits",
 							"host": [
@@ -762,7 +1187,12 @@
 					"name": "Get Withdrawal Transactions by Wallet",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
+							}
+						],
 						"url": {
 							"raw": "{{baseUrl}}/api/transactions/wallet/1/withdrawals",
 							"host": [

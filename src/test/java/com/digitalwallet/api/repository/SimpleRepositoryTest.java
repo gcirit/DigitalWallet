@@ -24,12 +24,12 @@ class SimpleRepositoryTest {
 
     @Test
     void testSaveAndFindCustomer() {
-        // Create a customer
+        // Create a customer with unique TCKN
         Customer customer = new Customer();
         customer.setName("Test");
         customer.setSurname("User");
-        customer.setTckn("12345678901");
-        customer.setRole(Customer.UserRole.CUSTOMER);
+        customer.setTckn("22222222222"); // Unique TCKN to avoid conflict
+        customer.setPassword("password");
 
         // Save customer
         Customer savedCustomer = customerRepository.save(customer);

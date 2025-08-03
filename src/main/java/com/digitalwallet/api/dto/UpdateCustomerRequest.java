@@ -10,20 +10,19 @@ import lombok.Builder;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CreateCustomerRequest {
+public class UpdateCustomerRequest {
     
     private String name;
     private String surname;
-    private String tckn;
     private String password;
     
-    // Convert to Entity
+    // Convert to Entity (without TCKN since it shouldn't change)
     public Customer toEntity() {
         Customer customer = new Customer();
         customer.setName(this.name);
         customer.setSurname(this.surname);
-        customer.setTckn(this.tckn);
         customer.setPassword(this.password);
+        // Note: TCKN is not set as it should not be changed during updates
         return customer;
     }
 } 

@@ -58,13 +58,7 @@ public class CustomerService {
         return customerRepository.findAll();
     }
 
-    /**
-     * Get customers by role
-     */
-    @Transactional(readOnly = true)
-    public List<Customer> getCustomersByRole(Customer.UserRole role) {
-        return customerRepository.findByRole(role);
-    }
+    // Role-based methods removed since customers don't have roles anymore
 
     /**
      * Update customer
@@ -78,7 +72,7 @@ public class CustomerService {
         // Update fields
         existingCustomer.setName(customerDetails.getName());
         existingCustomer.setSurname(customerDetails.getSurname());
-        existingCustomer.setRole(customerDetails.getRole());
+        existingCustomer.setPassword(customerDetails.getPassword());
         
         // Don't update TCKN as it should remain unique
         Customer updatedCustomer = customerRepository.save(existingCustomer);

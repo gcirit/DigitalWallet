@@ -1,35 +1,78 @@
 package com.digitalwallet.api.config;
 
+import com.digitalwallet.api.security.CustomAuthenticationProvider;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final CustomAuthenticationProvider customAuthenticationProvider;
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+            .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(authz -> authz
-                // Allow H2 console
+                // Public endpoints
                 .requestMatchers("/h2-console/**").permitAll()
-                // Allow all API requests for now (we'll secure this later)
-                .requestMatchers("/api/**").permitAll()
+                .requestMatchers("/api/auth/**").permitAll()
+                // Customer management - EMPLOYEE and ADMIN can manage customers
+                .requestMatchers("/api/customers/**").hasAnyRole("EMPLOYEE", "ADMIN")
+                // Employee management - only ADMIN can manage employees
+                .requestMatchers("/api/employees/**").hasRole("ADMIN")
+                // Customer-specific endpoints
+                .requestMatchers("/api/customers/me/**").hasRole("CUSTOMER")
+                .requestMatchers("/api/wallets/me/**").hasRole("CUSTOMER")
+                .requestMatchers("/api/transactions/me/**").hasRole("CUSTOMER")
+                // Wallet endpoints - allow CUSTOMER, EMPLOYEE, and ADMIN roles
+                .requestMatchers("/api/wallets/**").hasAnyRole("CUSTOMER", "EMPLOYEE", "ADMIN")
+                // Transaction endpoints - allow CUSTOMER, EMPLOYEE, and ADMIN roles
+                .requestMatchers("/api/transactions/**").hasAnyRole("CUSTOMER", "EMPLOYEE", "ADMIN")
                 // Allow all other requests for now
-                .anyRequest().permitAll()
+                .anyRequest().authenticated()
             )
-            .csrf(csrf -> csrf
-                // Disable CSRF for REST API endpoints and H2 console
-                .ignoringRequestMatchers("/api/**", "/h2-console/**")
+            .authenticationProvider(customAuthenticationProvider)
+            .formLogin(form -> form
+                .loginProcessingUrl("/api/auth/login")
+                .successHandler((request, response, authentication) -> {
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"message\":\"Login successful\",\"user\":\"" + authentication.getName() + "\"}");
+                })
+                .failureHandler((request, response, exception) -> {
+                    response.setStatus(401);
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"error\":\"Authentication failed\"}");
+                })
+                .permitAll()
+            )
+            .logout(logout -> logout
+                .logoutUrl("/api/auth/logout")
+                .logoutSuccessHandler((request, response, authentication) -> {
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"message\":\"Logout successful\"}");
+                })
+                .permitAll()
             )
             .headers(headers -> headers
-                // Disable frame options for H2 console (new syntax for Spring Security 6.1+)
                 .frameOptions(frameOptions -> frameOptions.disable())
             );
-        
+
         return http.build();
     }
 } 

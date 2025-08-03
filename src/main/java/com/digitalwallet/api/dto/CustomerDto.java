@@ -16,7 +16,7 @@ public class CustomerDto {
     private String name;
     private String surname;
     private String tckn;
-    private Customer.UserRole role;
+    // Note: password is not exposed in DTO for security reasons
     
     // Convert from Entity to DTO
     public static CustomerDto fromEntity(Customer customer) {
@@ -25,7 +25,6 @@ public class CustomerDto {
                 .name(customer.getName())
                 .surname(customer.getSurname())
                 .tckn(customer.getTckn())
-                .role(customer.getRole())
                 .build();
     }
     
@@ -36,7 +35,7 @@ public class CustomerDto {
         customer.setName(this.name);
         customer.setSurname(this.surname);
         customer.setTckn(this.tckn);
-        customer.setRole(this.role);
+        // Note: password should be set separately for security
         return customer;
     }
 } 

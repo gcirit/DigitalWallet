@@ -30,12 +30,12 @@ class ServiceTest {
 
     @Test
     void testCustomerService() {
-        // Create customer
+        // Create customer with unique TCKN
         Customer customer = new Customer();
         customer.setName("John");
         customer.setSurname("Doe");
-        customer.setTckn("12345678901");
-        customer.setRole(Customer.UserRole.CUSTOMER);
+        customer.setTckn("66666666666"); // Unique TCKN to avoid conflict
+        customer.setPassword("password");
 
         Customer savedCustomer = customerService.createCustomer(customer);
         assertNotNull(savedCustomer.getId());
@@ -45,8 +45,8 @@ class ServiceTest {
         Customer duplicateCustomer = new Customer();
         duplicateCustomer.setName("Jane");
         duplicateCustomer.setSurname("Smith");
-        duplicateCustomer.setTckn("12345678901"); // Same TCKN
-        duplicateCustomer.setRole(Customer.UserRole.CUSTOMER);
+        duplicateCustomer.setTckn("66666666666"); // Same TCKN for duplicate test
+        duplicateCustomer.setPassword("password");
 
         assertThrows(IllegalArgumentException.class, () -> {
             customerService.createCustomer(duplicateCustomer);
@@ -55,12 +55,12 @@ class ServiceTest {
 
     @Test
     void testWalletService() {
-        // Create customer first
+        // Create customer first with unique TCKN
         Customer customer = new Customer();
         customer.setName("Alice");
         customer.setSurname("Johnson");
-        customer.setTckn("98765432109");
-        customer.setRole(Customer.UserRole.CUSTOMER);
+        customer.setTckn("77777777777"); // Unique TCKN to avoid conflict
+        customer.setPassword("password");
         Customer savedCustomer = customerService.createCustomer(customer);
 
         // Create wallet
@@ -89,12 +89,12 @@ class ServiceTest {
 
     @Test
     void testTransactionService() {
-        // Create customer and wallet
+        // Create customer and wallet with unique TCKN
         Customer customer = new Customer();
         customer.setName("Bob");
         customer.setSurname("Wilson");
-        customer.setTckn("55566677788");
-        customer.setRole(Customer.UserRole.CUSTOMER);
+        customer.setTckn("88888888888"); // Unique TCKN to avoid conflict
+        customer.setPassword("password");
         Customer savedCustomer = customerService.createCustomer(customer);
 
         Wallet wallet = new Wallet();
@@ -140,12 +140,12 @@ class ServiceTest {
 
     @Test
     void testTransactionApproval() {
-        // Create customer and wallet
+        // Create customer and wallet with unique TCKN
         Customer customer = new Customer();
         customer.setName("Charlie");
         customer.setSurname("Brown");
-        customer.setTckn("11122233344");
-        customer.setRole(Customer.UserRole.CUSTOMER);
+        customer.setTckn("99999999999"); // Unique TCKN to avoid conflict
+        customer.setPassword("password");
         Customer savedCustomer = customerService.createCustomer(customer);
 
         Wallet wallet = new Wallet();
@@ -195,12 +195,12 @@ class ServiceTest {
 
     @Test
     void testTransactionDenial() {
-        // Create customer and wallet
+        // Create customer and wallet with unique TCKN
         Customer customer = new Customer();
         customer.setName("David");
         customer.setSurname("Miller");
-        customer.setTckn("99988877766");
-        customer.setRole(Customer.UserRole.CUSTOMER);
+        customer.setTckn("10101010101"); // Unique TCKN to avoid conflict
+        customer.setPassword("password");
         Customer savedCustomer = customerService.createCustomer(customer);
 
         Wallet wallet = new Wallet();
@@ -233,12 +233,12 @@ class ServiceTest {
 
     @Test
     void testQueryMethods() {
-        // Create customer and wallet
+        // Create customer and wallet with unique TCKN
         Customer customer = new Customer();
         customer.setName("Eve");
         customer.setSurname("Anderson");
-        customer.setTckn("77766655544");
-        customer.setRole(Customer.UserRole.CUSTOMER);
+        customer.setTckn("12121212121"); // Unique TCKN to avoid conflict
+        customer.setPassword("password");
         Customer savedCustomer = customerService.createCustomer(customer);
 
         Wallet wallet = new Wallet();

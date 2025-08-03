@@ -12,13 +12,13 @@ class EntityTest {
         customer.setName("John");
         customer.setSurname("Doe");
         customer.setTckn("12345678901");
-        customer.setRole(Customer.UserRole.CUSTOMER);
+        customer.setPassword("password");
         
         assertNotNull(customer);
         assertEquals("John", customer.getName());
         assertEquals("Doe", customer.getSurname());
         assertEquals("12345678901", customer.getTckn());
-        assertEquals(Customer.UserRole.CUSTOMER, customer.getRole());
+        assertEquals("password", customer.getPassword());
     }
 
     @Test
@@ -51,5 +51,22 @@ class EntityTest {
         assertEquals(Transaction.OppositePartyType.IBAN, transaction.getOppositePartyType());
         assertEquals("TR123456789", transaction.getOppositeParty());
         assertEquals(Transaction.TransactionStatus.PENDING, transaction.getStatus());
+    }
+
+    @Test
+    void testEmployeeEntity() {
+        Employee employee = new Employee();
+        employee.setName("Jane");
+        employee.setSurname("Smith");
+        employee.setEmployeeId("EMP001");
+        employee.setPassword("password");
+        employee.setRole(Employee.EmployeeRole.EMPLOYEE);
+        
+        assertNotNull(employee);
+        assertEquals("Jane", employee.getName());
+        assertEquals("Smith", employee.getSurname());
+        assertEquals("EMP001", employee.getEmployeeId());
+        assertEquals("password", employee.getPassword());
+        assertEquals(Employee.EmployeeRole.EMPLOYEE, employee.getRole());
     }
 } 

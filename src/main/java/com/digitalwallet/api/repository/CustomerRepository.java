@@ -23,5 +23,5 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     /**
      * Find customers by role
      */
-    List<Customer> findByRole(Customer.UserRole role);
+    // Role-based methods removed since customers don't have roles anymore
 } 

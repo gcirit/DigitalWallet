@@ -30,31 +30,31 @@ class RepositoryTest {
 
     @Test
     void testCustomerRepository() {
-        // Create a customer
+        // Create a customer with unique TCKN
         Customer customer = new Customer();
         customer.setName("John");
         customer.setSurname("Doe");
-        customer.setTckn("12345678901");
-        customer.setRole(Customer.UserRole.CUSTOMER);
+        customer.setTckn("33333333333"); // Unique TCKN to avoid conflict
+        customer.setPassword("password");
 
         // Save customer
         Customer savedCustomer = customerRepository.save(customer);
         assertNotNull(savedCustomer.getId());
 
         // Find by TCKN
-        Customer foundCustomer = customerRepository.findByTckn("12345678901").orElse(null);
+        Customer foundCustomer = customerRepository.findByTckn("33333333333").orElse(null);
         assertNotNull(foundCustomer);
         assertEquals("John", foundCustomer.getName());
     }
 
     @Test
     void testWalletRepository() {
-        // Create a customer first
+        // Create a customer first with unique TCKN
         Customer customer = new Customer();
         customer.setName("Jane");
         customer.setSurname("Smith");
-        customer.setTckn("98765432109");
-        customer.setRole(Customer.UserRole.CUSTOMER);
+        customer.setTckn("44444444444"); // Unique TCKN to avoid conflict
+        customer.setPassword("password");
         Customer savedCustomer = customerRepository.save(customer);
 
         // Create a wallet
@@ -77,12 +77,12 @@ class RepositoryTest {
 
     @Test
     void testTransactionRepository() {
-        // Create a customer and wallet first
+        // Create a customer and wallet first with unique TCKN
         Customer customer = new Customer();
         customer.setName("Alice");
         customer.setSurname("Johnson");
-        customer.setTckn("55566677788");
-        customer.setRole(Customer.UserRole.CUSTOMER);
+        customer.setTckn("55555555555"); // Unique TCKN to avoid conflict
+        customer.setPassword("password");
         Customer savedCustomer = customerRepository.save(customer);
 
         Wallet wallet = new Wallet();

@@ -7,12 +7,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 
 @Entity
-@Table(name = "customers")
+@Table(name = "employees")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Customer {
+public class Employee {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,11 +25,16 @@ public class Customer {
     private String surname;
     
     @Column(nullable = false, unique = true)
-    private String tckn; // Turkish Citizenship Number
+    private String employeeId; // Unique employee identifier
     
     @Column(nullable = false)
     private String password; // In production, this should be hashed
     
-    // Note: Customers don't have roles - they are all CUSTOMER by default
-    // Employees are now a separate entity
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private EmployeeRole role = EmployeeRole.EMPLOYEE;
+    
+    public enum EmployeeRole {
+        EMPLOYEE, MANAGER, ADMIN
+    }
 } 

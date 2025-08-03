@@ -2,12 +2,15 @@ package com.digitalwallet.api.controller;
 
 import com.digitalwallet.api.dto.CustomerDto;
 import com.digitalwallet.api.dto.CreateCustomerRequest;
+import com.digitalwallet.api.dto.UpdateCustomerRequest;
 import com.digitalwallet.api.entity.Customer;
+import com.digitalwallet.api.service.AuthService;
 import com.digitalwallet.api.service.CustomerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,20 +23,29 @@ import java.util.stream.Collectors;
 public class CustomerController {
 
     private final CustomerService customerService;
+    private final AuthService authService;
 
     /**
-     * Create a new customer
+     * Create a new customer (EMPLOYEE only)
      */
     @PostMapping
     public ResponseEntity<CustomerDto> createCustomer(@RequestBody CreateCustomerRequest request) {
         log.info("Creating customer: {}", request.getTckn());
         try {
+            // Check authorization - only EMPLOYEE or ADMIN can create customers
+            if (!authService.isEmployeeOrAdmin()) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+            
             Customer customer = request.toEntity();
             Customer createdCustomer = customerService.createCustomer(customer);
             return ResponseEntity.status(HttpStatus.CREATED).body(CustomerDto.fromEntity(createdCustomer));
         } catch (IllegalArgumentException e) {
             log.error("Error creating customer: {}", e.getMessage());
             return ResponseEntity.badRequest().build();
+        } catch (AccessDeniedException e) {
+            log.error("Access denied: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
     }
 
@@ -62,11 +74,16 @@ public class CustomerController {
     }
 
     /**
-     * Get all customers
+     * Get all customers (EMPLOYEE only)
      */
     @GetMapping
     public ResponseEntity<List<CustomerDto>> getAllCustomers() {
         log.info("Getting all customers");
+        // Check authorization - only EMPLOYEE or ADMIN can view all customers
+        if (!authService.isEmployeeOrAdmin()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        
         List<Customer> customers = customerService.getAllCustomers();
         List<CustomerDto> customerDtos = customers.stream()
                 .map(CustomerDto::fromEntity)
@@ -74,24 +91,13 @@ public class CustomerController {
         return ResponseEntity.ok(customerDtos);
     }
 
-    /**
-     * Get customers by role
-     */
-    @GetMapping("/role/{role}")
-    public ResponseEntity<List<CustomerDto>> getCustomersByRole(@PathVariable Customer.UserRole role) {
-        log.info("Getting customers by role: {}", role);
-        List<Customer> customers = customerService.getCustomersByRole(role);
-        List<CustomerDto> customerDtos = customers.stream()
-                .map(CustomerDto::fromEntity)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(customerDtos);
-    }
+    // Role-based methods removed since customers don't have roles anymore
 
     /**
      * Update customer
      */
     @PutMapping("/{id}")
-    public ResponseEntity<CustomerDto> updateCustomer(@PathVariable Long id, @RequestBody CreateCustomerRequest request) {
+    public ResponseEntity<CustomerDto> updateCustomer(@PathVariable Long id, @RequestBody UpdateCustomerRequest request) {
         log.info("Updating customer with ID: {}", id);
         try {
             Customer customerDetails = request.toEntity();
