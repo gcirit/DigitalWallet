@@ -209,4 +209,12 @@ public class TransactionService {
     public List<Transaction> getWithdrawTransactionsByWalletId(Long walletId) {
         return transactionRepository.findByWalletIdAndType(walletId, Transaction.TransactionType.WITHDRAW);
     }
+
+    /**
+     * Get all transactions for a customer
+     */
+    @Transactional(readOnly = true)
+    public List<Transaction> getTransactionsByCustomerId(Long customerId) {
+        return transactionRepository.findByWalletCustomerId(customerId);
+    }
 } 

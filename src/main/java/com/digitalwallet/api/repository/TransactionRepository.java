@@ -33,4 +33,9 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
      * Find transactions by wallet ID and type
      */
     List<Transaction> findByWalletIdAndType(Long walletId, Transaction.TransactionType type);
+    
+    /**
+     * Find transactions by customer ID (through wallet)
+     */
+    List<Transaction> findByWalletCustomerId(Long customerId);
 } 

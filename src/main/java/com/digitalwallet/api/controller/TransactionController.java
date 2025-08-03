@@ -6,6 +6,7 @@ import com.digitalwallet.api.entity.Employee;
 import com.digitalwallet.api.entity.Transaction;
 import com.digitalwallet.api.service.AuthService;
 import com.digitalwallet.api.service.TransactionService;
+import com.digitalwallet.api.service.WalletService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -25,6 +27,7 @@ public class TransactionController {
 
     private final TransactionService transactionService;
     private final AuthService authService;
+    private final WalletService walletService;
 
     /**
      * Create a deposit transaction
@@ -45,10 +48,10 @@ public class TransactionController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
             
-            // If current user is CUSTOMER, they can only create transactions for their own wallets
+            // If current user is CUSTOMER, they can deposit to any wallet (no restriction)
             if (authService.isCustomer()) {
-                // TODO: Add wallet ownership check - for now, allow customer to create transactions
-                // In production, you'd check if the wallet belongs to the current customer
+                // Customers can deposit to any wallet - no ownership check needed
+                // This allows customers to send money to other customers
             }
             
             Transaction transaction = transactionService.createDepositTransaction(walletId, amount, oppositePartyType, oppositeParty);
@@ -81,10 +84,12 @@ public class TransactionController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
             
-            // If current user is CUSTOMER, they can only create transactions for their own wallets
+            // If current user is CUSTOMER, they can only withdraw from their own wallets
             if (authService.isCustomer()) {
-                // TODO: Add wallet ownership check - for now, allow customer to create transactions
-                // In production, you'd check if the wallet belongs to the current customer
+                // Check if the wallet belongs to the current customer
+                if (!walletService.isWalletOwnedByCustomer(walletId, currentCustomer.getId())) {
+                    throw new AccessDeniedException("Customers can only withdraw from their own wallets");
+                }
             }
             
             Transaction transaction = transactionService.createWithdrawTransaction(walletId, amount, oppositePartyType, oppositeParty);
@@ -177,8 +182,11 @@ public class TransactionController {
             
             // If current user is CUSTOMER, they can only view their own transactions
             if (authService.isCustomer()) {
-                // TODO: Add transaction ownership check - for now, allow customer to view transactions
-                // In production, you'd check if the transaction belongs to the current customer
+                // Check if the transaction belongs to the current customer
+                Optional<Transaction> transaction = transactionService.getTransactionById(id);
+                if (transaction.isEmpty() || !transaction.get().getWallet().getCustomer().getId().equals(currentCustomer.getId())) {
+                    throw new AccessDeniedException("Customers can only view their own transactions");
+                }
             }
             
             return transactionService.getTransactionById(id)
@@ -208,8 +216,10 @@ public class TransactionController {
             
             // If current user is CUSTOMER, they can only view transactions for their own wallets
             if (authService.isCustomer()) {
-                // TODO: Add wallet ownership check - for now, allow customer to view transactions
-                // In production, you'd check if the wallet belongs to the current customer
+                // Check if the wallet belongs to the current customer
+                if (!walletService.isWalletOwnedByCustomer(walletId, currentCustomer.getId())) {
+                    throw new AccessDeniedException("Customers can only view transactions for their own wallets");
+                }
             }
             
             List<Transaction> transactions = transactionService.getTransactionsByWalletId(walletId);
@@ -242,8 +252,10 @@ public class TransactionController {
             
             // If current user is CUSTOMER, they can only view transactions for their own wallets
             if (authService.isCustomer()) {
-                // TODO: Add wallet ownership check - for now, allow customer to view transactions
-                // In production, you'd check if the wallet belongs to the current customer
+                // Check if the wallet belongs to the current customer
+                if (!walletService.isWalletOwnedByCustomer(walletId, currentCustomer.getId())) {
+                    throw new AccessDeniedException("Customers can only view transactions for their own wallets");
+                }
             }
             
             List<Transaction> transactions = transactionService.getTransactionsByWalletIdAndStatus(walletId, status);
@@ -258,13 +270,13 @@ public class TransactionController {
     }
 
     /**
-     * Get all transactions
+     * Get all transactions (EMPLOYEE/ADMIN see all, CUSTOMER sees their own)
      */
     @GetMapping
     public ResponseEntity<List<TransactionDto>> getAllTransactions() {
         log.info("Getting all transactions");
         try {
-            // Check authorization - only EMPLOYEE or ADMIN can view all transactions
+            // Check authorization
             Customer currentCustomer = authService.getCurrentCustomer();
             Employee currentEmployee = authService.getCurrentEmployee();
             
@@ -272,13 +284,18 @@ public class TransactionController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
             
-            // Only EMPLOYEE or ADMIN can view all transactions
-            if (!authService.isEmployeeOrAdmin()) {
-                throw new AccessDeniedException("Only employees or admins can view all transactions");
+            List<Transaction> transactions;
+            List<TransactionDto> transactionDtos;
+            
+            // If current user is EMPLOYEE or ADMIN, they can view all transactions
+            if (authService.isEmployeeOrAdmin()) {
+                transactions = transactionService.getAllTransactions();
+            } else {
+                // If current user is CUSTOMER, they can only view their own transactions
+                transactions = transactionService.getTransactionsByCustomerId(currentCustomer.getId());
             }
             
-            List<Transaction> transactions = transactionService.getAllTransactions();
-            List<TransactionDto> transactionDtos = transactions.stream()
+            transactionDtos = transactions.stream()
                     .map(TransactionDto::fromEntity)
                     .collect(Collectors.toList());
             return ResponseEntity.ok(transactionDtos);
@@ -400,8 +417,10 @@ public class TransactionController {
             
             // If current user is CUSTOMER, they can only view transactions for their own wallets
             if (authService.isCustomer()) {
-                // TODO: Add wallet ownership check - for now, allow customer to view transactions
-                // In production, you'd check if the wallet belongs to the current customer
+                // Check if the wallet belongs to the current customer
+                if (!walletService.isWalletOwnedByCustomer(walletId, currentCustomer.getId())) {
+                    throw new AccessDeniedException("Customers can only view transactions for their own wallets");
+                }
             }
             
             List<Transaction> transactions = transactionService.getTransactionsByWalletIdAndType(walletId, type);
@@ -432,8 +451,10 @@ public class TransactionController {
             
             // If current user is CUSTOMER, they can only view transactions for their own wallets
             if (authService.isCustomer()) {
-                // TODO: Add wallet ownership check - for now, allow customer to view transactions
-                // In production, you'd check if the wallet belongs to the current customer
+                // Check if the wallet belongs to the current customer
+                if (!walletService.isWalletOwnedByCustomer(walletId, currentCustomer.getId())) {
+                    throw new AccessDeniedException("Customers can only view transactions for their own wallets");
+                }
             }
             
             List<Transaction> transactions = transactionService.getDepositTransactionsByWalletId(walletId);
@@ -464,8 +485,10 @@ public class TransactionController {
             
             // If current user is CUSTOMER, they can only view transactions for their own wallets
             if (authService.isCustomer()) {
-                // TODO: Add wallet ownership check - for now, allow customer to view transactions
-                // In production, you'd check if the wallet belongs to the current customer
+                // Check if the wallet belongs to the current customer
+                if (!walletService.isWalletOwnedByCustomer(walletId, currentCustomer.getId())) {
+                    throw new AccessDeniedException("Customers can only view transactions for their own wallets");
+                }
             }
             
             List<Transaction> transactions = transactionService.getWithdrawTransactionsByWalletId(walletId);

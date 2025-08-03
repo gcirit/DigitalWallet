@@ -47,7 +47,7 @@ public class AuthController {
             }
             
             // No authenticated user found
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(401).build();
         } catch (Exception e) {
             log.error("Error getting current user: {}", e.getMessage());
             return ResponseEntity.status(401).build();

@@ -191,4 +191,13 @@ public class WalletService {
     public List<Wallet> getActiveWalletsForWithdraw() {
         return walletRepository.findByActiveForWithdrawTrue();
     }
+
+    /**
+     * Check if a wallet is owned by a specific customer
+     */
+    @Transactional(readOnly = true)
+    public boolean isWalletOwnedByCustomer(Long walletId, Long customerId) {
+        Optional<Wallet> wallet = walletRepository.findById(walletId);
+        return wallet.isPresent() && wallet.get().getCustomer().getId().equals(customerId);
+    }
 } 

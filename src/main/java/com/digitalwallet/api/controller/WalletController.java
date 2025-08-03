@@ -72,10 +72,13 @@ public class WalletController {
         log.info("Creating wallet for current customer");
         try {
             // Get current customer from authentication context
-            // For now, we'll use a default customer ID (1) - in production, you'd get this from the security context
-            Long currentCustomerId = 1L; // This should be extracted from authentication
+            Customer currentCustomer = authService.getCurrentCustomer();
+            if (currentCustomer == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+            
             Wallet wallet = request.toEntity();
-            Wallet createdWallet = walletService.createWallet(currentCustomerId, wallet);
+            Wallet createdWallet = walletService.createWallet(currentCustomer.getId(), wallet);
             return ResponseEntity.status(HttpStatus.CREATED).body(WalletDto.fromEntity(createdWallet));
         } catch (IllegalArgumentException e) {
             log.error("Error creating wallet: {}", e.getMessage());
@@ -100,8 +103,10 @@ public class WalletController {
             
             // If current user is CUSTOMER, they can only view their own wallets
             if (authService.isCustomer()) {
-                // TODO: Add wallet ownership check - for now, allow customer to view wallets
-                // In production, you'd check if the wallet belongs to the current customer
+                // Check if the wallet belongs to the current customer
+                if (!walletService.isWalletOwnedByCustomer(id, currentCustomer.getId())) {
+                    throw new AccessDeniedException("Customers can only view their own wallets");
+                }
             }
             
             return walletService.getWalletById(id)
@@ -179,13 +184,13 @@ public class WalletController {
     }
 
     /**
-     * Get all wallets (EMPLOYEE only)
+     * Get all wallets (EMPLOYEE/ADMIN see all, CUSTOMER sees their own)
      */
     @GetMapping
     public ResponseEntity<List<WalletDto>> getAllWallets() {
         log.info("Getting all wallets");
         try {
-            // Check authorization - only EMPLOYEE or ADMIN can view all wallets
+            // Check authorization
             Customer currentCustomer = authService.getCurrentCustomer();
             Employee currentEmployee = authService.getCurrentEmployee();
             
@@ -193,13 +198,18 @@ public class WalletController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
             
-            // Only EMPLOYEE or ADMIN can view all wallets
-            if (!authService.isEmployeeOrAdmin()) {
-                throw new AccessDeniedException("Only employees or admins can view all wallets");
+            List<Wallet> wallets;
+            List<WalletDto> walletDtos;
+            
+            // If current user is EMPLOYEE or ADMIN, they can view all wallets
+            if (authService.isEmployeeOrAdmin()) {
+                wallets = walletService.getAllWallets();
+            } else {
+                // If current user is CUSTOMER, they can only view their own wallets
+                wallets = walletService.getWalletsByCustomerId(currentCustomer.getId());
             }
             
-            List<Wallet> wallets = walletService.getAllWallets();
-            List<WalletDto> walletDtos = wallets.stream()
+            walletDtos = wallets.stream()
                 .map(WalletDto::fromEntity)
                 .collect(Collectors.toList());
             return ResponseEntity.ok(walletDtos);
