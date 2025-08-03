@@ -12,7 +12,48 @@
 2. **Import** the `DigitalWallet_API.postman_collection.json` file
 3. **Set the base URL** variable to `http://localhost:8080`
 
+## 🔐 Authentication & Authorization
+
+### User Types
+- **CUSTOMER**: Can access their own wallets and transactions
+- **EMPLOYEE**: Can access all wallets and transactions
+- **ADMIN**: Full administrative access
+
+### Current User Info
+```bash
+GET http://localhost:8080/api/auth/me
+```
+**Response for Customer:**
+```json
+{
+  "userType": "CUSTOMER",
+  "customer": {
+    "id": 1,
+    "name": "John",
+    "surname": "Doe",
+    "tckn": "12345678901",
+    "role": "CUSTOMER"
+  }
+}
+```
+
+**Response for Employee:**
+```json
+{
+  "userType": "EMPLOYEE",
+  "employee": {
+    "id": 1,
+    "name": "Jane",
+    "surname": "Smith",
+    "role": "EMPLOYEE"
+  }
+}
+```
+
 ## 📋 API Endpoints Overview
+
+### Authentication (`/api/auth`)
+- ✅ **GET** `/api/auth/me` - Get current user info (Customer/Employee/Admin)
 
 ### Customer Management (`/api/customers`)
 - ✅ **POST** `/api/customers` - Create customer
@@ -25,11 +66,11 @@
 - ✅ **GET** `/api/customers/exists/tckn/{tckn}` - Check if customer exists
 
 ### Wallet Management (`/api/wallets`)
-- ✅ **POST** `/api/wallets/customer/{customerId}` - Create wallet
+- ✅ **POST** `/api/wallets` - Create wallet for current customer
 - ✅ **GET** `/api/wallets/{id}` - Get wallet by ID
 - ✅ **GET** `/api/wallets/customer/{customerId}` - Get customer wallets
 - ✅ **GET** `/api/wallets/customer/{customerId}/currency/{currency}` - Get wallets by currency
-- ✅ **GET** `/api/wallets` - Get all wallets
+- ✅ **GET** `/api/wallets` - Get all wallets (Customer sees own, Employee sees all)
 - ✅ **PUT** `/api/wallets/{id}/balance` - Update wallet balance
 - ✅ **POST** `/api/wallets/{id}/balance/add` - Add to balance
 - ✅ **POST** `/api/wallets/{id}/balance/deduct` - Deduct from balance
@@ -47,13 +88,25 @@
 - ✅ **GET** `/api/transactions/{id}` - Get transaction by ID
 - ✅ **GET** `/api/transactions/wallet/{walletId}` - Get wallet transactions
 - ✅ **GET** `/api/transactions/wallet/{walletId}/status/{status}` - Get transactions by status
-- ✅ **GET** `/api/transactions` - Get all transactions
+- ✅ **GET** `/api/transactions` - Get all transactions (Customer sees own, Employee sees all)
 - ✅ **GET** `/api/transactions/status/{status}` - Get transactions by status
 - ✅ **GET** `/api/transactions/pending` - Get pending transactions
 - ✅ **GET** `/api/transactions/type/{type}` - Get transactions by type
 - ✅ **GET** `/api/transactions/wallet/{walletId}/type/{type}` - Get transactions by type
 - ✅ **GET** `/api/transactions/wallet/{walletId}/deposits` - Get deposit transactions
 - ✅ **GET** `/api/transactions/wallet/{walletId}/withdrawals` - Get withdrawal transactions
+
+## 💰 Business Logic Rules
+
+### Customer Transaction Rules
+- ✅ **DEPOSIT**: Can deposit to ANY wallet (including other customers' wallets)
+- ✅ **WITHDRAW**: Can only withdraw from their OWN wallets
+- ✅ **VIEW**: Can only view their own transactions and wallets
+
+### Employee/Admin Transaction Rules
+- ✅ **DEPOSIT**: Can deposit to any wallet
+- ✅ **WITHDRAW**: Can withdraw from any wallet
+- ✅ **VIEW**: Can view all transactions and wallets
 
 ## 🧪 Step-by-Step Testing Workflow
 
@@ -83,7 +136,7 @@ Content-Type: application/json
 
 ### Step 2: Create a Wallet for the Customer
 ```bash
-POST http://localhost:8080/api/wallets/customer/1
+POST http://localhost:8080/api/wallets
 Content-Type: application/json
 
 {
@@ -132,7 +185,7 @@ Content-Type: application/json
 }
 ```
 
-### Step 4: Create a Deposit Transaction
+### Step 4: Create a Deposit Transaction (Customer can deposit to any wallet)
 ```bash
 POST http://localhost:8080/api/transactions/deposit?walletId=1&amount=500.00&oppositePartyType=IBAN&oppositeParty=TR123456789
 ```
@@ -183,7 +236,7 @@ GET http://localhost:8080/api/wallets/1
 }
 ```
 
-### Step 7: Create a Withdrawal Transaction
+### Step 7: Create a Withdrawal Transaction (Customer can only withdraw from own wallet)
 ```bash
 POST http://localhost:8080/api/transactions/withdraw?walletId=1&amount=200.00&oppositePartyType=IBAN&oppositeParty=TR987654321
 ```
@@ -209,6 +262,21 @@ GET http://localhost:8080/api/wallets/1
 ```
 
 ## 🔍 Query Examples
+
+### Get Current User Info
+```bash
+GET http://localhost:8080/api/auth/me
+```
+
+### Get All Transactions (Customer sees own, Employee sees all)
+```bash
+GET http://localhost:8080/api/transactions
+```
+
+### Get All Wallets (Customer sees own, Employee sees all)
+```bash
+GET http://localhost:8080/api/wallets
+```
 
 ### Get All Transactions for a Wallet
 ```bash
@@ -239,6 +307,20 @@ POST http://localhost:8080/api/transactions/withdraw?walletId=1&amount=2000.00&o
 
 **Expected Response:** `400 Bad Request`
 
+### Customer Trying to Withdraw from Another Customer's Wallet
+```bash
+POST http://localhost:8080/api/transactions/withdraw?walletId=2&amount=100.00&oppositePartyType=IBAN&oppositeParty=TR111111111
+```
+
+**Expected Response:** `403 Forbidden` - "Customers can only withdraw from their own wallets"
+
+### Customer Trying to View Another Customer's Transactions
+```bash
+GET http://localhost:8080/api/transactions/wallet/2
+```
+
+**Expected Response:** `403 Forbidden` - "Customers can only view transactions for their own wallets"
+
 ### Duplicate TCKN
 ```bash
 POST http://localhost:8080/api/customers
@@ -261,6 +343,13 @@ GET http://localhost:8080/api/wallets/999
 
 **Expected Response:** `404 Not Found`
 
+### Unauthorized Access
+```bash
+GET http://localhost:8080/api/auth/me
+```
+
+**Expected Response:** `401 Unauthorized`
+
 ## 🎯 Testing Scenarios
 
 ### Scenario 1: Complete Customer Journey
@@ -274,18 +363,34 @@ GET http://localhost:8080/api/wallets/999
 8. Approve withdrawal
 9. Verify balance decrease
 
-### Scenario 2: Transaction Approval Workflow
+### Scenario 2: Customer Access Control
+1. Create two customers
+2. Create wallets for both customers
+3. Verify customer can only see their own wallets
+4. Verify customer can only see their own transactions
+5. Verify customer can deposit to any wallet
+6. Verify customer can only withdraw from own wallet
+
+### Scenario 3: Employee Access Control
+1. Create employee user
+2. Verify employee can see all wallets
+3. Verify employee can see all transactions
+4. Verify employee can approve/deny transactions
+5. Verify employee can manage any wallet
+
+### Scenario 4: Transaction Approval Workflow
 1. Create multiple pending transactions
 2. List pending transactions
 3. Approve some transactions
 4. Deny some transactions
 5. Verify balance changes only for approved transactions
 
-### Scenario 3: Error Handling
+### Scenario 5: Error Handling
 1. Try to create customer with duplicate TCKN
 2. Try to withdraw more than available balance
 3. Try to approve already approved transaction
 4. Try to access non-existent resources
+5. Try to withdraw from another customer's wallet
 
 ## 📊 Database Verification
 
@@ -316,26 +421,13 @@ SELECT t.*, w.wallet_name, c.name
 FROM TRANSACTIONS t 
 JOIN WALLETS w ON t.wallet_id = w.id 
 JOIN CUSTOMERS c ON w.customer_id = c.id;
+
+-- View transactions by customer
+SELECT t.*, c.name, c.surname
+FROM TRANSACTIONS t 
+JOIN WALLETS w ON t.wallet_id = w.id 
+JOIN CUSTOMERS c ON w.customer_id = c.id
+WHERE c.id = 1;
 ```
-
-## 🎉 Success Criteria
-
-✅ **All endpoints return correct HTTP status codes**
-✅ **CRUD operations work correctly**
-✅ **Business logic validation works**
-✅ **Transaction approval affects wallet balance**
-✅ **Error handling provides meaningful messages**
-✅ **Database operations are atomic**
-✅ **API responses are properly formatted**
-
-## 🚀 Next Steps
-
-After successful testing, you can:
-1. **Implement authentication/authorization**
-2. **Add input validation**
-3. **Implement rate limiting**
-4. **Add comprehensive logging**
-5. **Create integration tests**
-6. **Deploy to production environment**
 
 Happy Testing! 🎯 

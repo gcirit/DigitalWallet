@@ -1,0 +1,41 @@
+# Maven
+target/
+!target/*.jar
+!target/digitalwallet-0.0.1-SNAPSHOT.jar
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Documentation
+README.md
+API_TESTING_GUIDE.md
+*.md
+
+# Test files
+src/test/
+
+# Build files
+.mvn/
+mvnw
+mvnw.cmd 
