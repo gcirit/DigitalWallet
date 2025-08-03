@@ -42,6 +42,7 @@ A comprehensive Spring Boot REST API for digital wallet management with separate
 
 4. **Access the application**
    - API Base URL: `http://localhost:8080`
+   - Username: `EMP001`   Password: `password`
    - H2 Console: `http://localhost:8080/h2-console`
    - Database URL: `jdbc:h2:mem:testdb`
    - Username: `sa`
